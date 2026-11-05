@@ -1,0 +1,84 @@
+# Berlin, the state plus a margin of the surrounding Brandenburg.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: berlin
+label: "Berlin"
+
+# south, west, north, east. Wider than the state boundary (52.34-52.68,
+# 13.09-13.76) so the S-Bahn's outer stops and the ring's edges are not
+# clipped, and roughly the same span as Munich's for comparability.
+bbox: [52.30, 13.00, 52.70, 13.80]
+
+# Counts observed 2026-08-20, on a first fetch of this region.
+categories:
+  skatepark:
+    # 128 raw elements, 122 after dedupe. `leisure=skatepark` returns zero
+    # here, exactly as in Munich.
+    expect_count: [70, 200]
+
+  suburban_rail:
+    # Locally this is the S-Bahn, which the panel shows after the label.
+    local_name: "S-Bahn"
+    # 343 raw stop positions, 160 after the 200 m dedupe — and 160 is
+    # exactly the number of distinct station names in the response. Every
+    # element carries `light_rail`, so nothing regional crept in.
+    #
+    # Berlin is why the library query unions `route=train` with
+    # `route=light_rail`: this network is tagged the second way and Munich's
+    # is tagged the first, so either query alone returns nothing at all in
+    # the other city.
+    expect_count: [130, 200]
+
+  supermarket:
+    # 1670 raw elements, 1572 after dedupe — nearly twice Munich's 870.
+    expect_count: [1100, 2200]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    local_name: "U-Bahn"
+    # 178 raw elements, 176 after dedupe, against Berlin's 175 actual
+    # stations — the same tagging that works in Munich.
+    expect_count: [140, 220]
+
+  climbing_gym:
+    # 26 raw elements, 23 after dedupe. `sport=climbing` alone returns 84
+    # here; requiring `leisure=sports_centre` is what excludes the outdoor
+    # rock, same as in Munich.
+    expect_count: [12, 45]
+
+  tram:
+    # 550 points after the 100 m merge, against 484 named stops.
+    expect_count: [400, 750]
+
+  fitness:
+    # 536 raw elements, 512 after dedupe.
+    expect_count: [350, 720]
+
+  swimming:
+    # 81 raw elements, 79 after dedupe.
+    expect_count: [45, 120]
+
+  park:
+    # Observed 2026-10-06: 3185 raw elements, 313 in connected bodies over
+    # 10 ha (5 ha if named), covering 39.5 km² and 25% of the region at a
+    # 15 minute walk.
+    expect_count: [210, 450]
+
+  water:
+    # Observed 2026-10-06: 3273 raw elements, 492 in connected bodies over
+    # 5 ha (2 ha if named) and 48 river strips — of 125 lines, the rest
+    # inside water polygons — covering 88.0 km² and 35% of the region at a
+    # 15 minute walk.
+    expect_count: [430, 900]
+
+  library:
+    # Observed 2026-10-27: 213 raw elements, 207 after dedupe.
+    expect_count: [145, 290]
+
+  dog_park:
+    # Observed 2026-10-27: 82 raw elements, 81 after dedupe, about 14 of
+    # them dog clubs and schools, the rest mostly Hundeauslaufgebiete.
+    expect_count: [55, 115]

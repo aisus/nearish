@@ -1,0 +1,90 @@
+# Belgrade, the city and the BG Voz corridors.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: belgrade
+label: "Belgrade"
+
+# south, west, north, east. Covers the BG Voz line ends at Batajnica and
+# Pančevo, which is what sets the extent here rather than the built-up area.
+bbox: [44.65, 20.25, 44.95, 20.70]
+
+# No `metro`: Belgrade's is still under construction, and `station=subway`
+# returns zero here. A category that returns nothing is an error in this
+# tool, so the region simply does not name one — which is the difference
+# between "not built yet" and "the query broke".
+# Counts observed 2026-08-20, on a first fetch of this region.
+categories:
+  skatepark:
+    # 6 raw elements, 6 after dedupe on 2026-10-07 — an order of
+    # magnitude below Munich and Berlin. Real, but close to the point where
+    # "genuinely rare" and "not mapped yet" stop being distinguishable, so
+    # the range is wide.
+    expect_count: [3, 30]
+
+  suburban_rail:
+    local_name: "BG Voz"
+    # BG Voz brands its lines BG1 and BG2, so the library's `^S` finds
+    # nothing at all here. Measured 2026-08-20: this selects 11 relations,
+    # exactly the count carrying `network=БГ:Воз`. The other 53 are Serbian
+    # Railways services whose refs are timetable numbers — `2400;2402;2404`
+    # and the like — which no prefix rule would catch by accident.
+    #
+    # Matched on ref rather than on the Cyrillic network string, and the
+    # response settles it: that string appears as both `БГ:Воз` (29) and
+    # `БГ Воз` (2), with 3 stops carrying no network tag at all.
+    query: |
+      rel[type=route][route=train][ref~"^BG[0-9]"]({{bbox}});
+      node(r:"stop")({{bbox}});
+    # 32 raw stop positions, 17 after the 250 m dedupe, against exactly 17
+    # distinct station names — the cleanest fit of any region so far, since
+    # Belgrade has no interchange on the scale of Ostkreuz. Нови Београд is
+    # missing on purpose: Srbijavoz closed it for works from 2026-09-09 to
+    # 2026-12-31, and OSM took it out of the routes. It returns with a
+    # refresh once it reopens.
+    expect_count: [12, 30]
+
+  supermarket:
+    # 384 raw elements, 373 after dedupe.
+    expect_count: [250, 550]
+
+  climbing_gym:
+    # 9 raw elements, 8 after dedupe.
+    expect_count: [4, 25]
+
+  tram:
+    # The one category ticked on load, standing in for metro, which
+    # Belgrade does not have; see regions/munich.yaml.
+    default_enabled: true
+    # 118 points after the 100 m merge, against 92 named stops.
+    expect_count: [80, 170]
+
+  fitness:
+    # 166 raw elements, 156 after dedupe.
+    expect_count: [100, 230]
+
+  swimming:
+    # 8 raw elements, 8 after dedupe on 2026-11-04.
+    expect_count: [2, 15]
+
+  park:
+    # Observed 2026-10-06: 577 raw elements, 41 in connected bodies over
+    # 10 ha (5 ha if named), covering 5.2 km² and 7% of the region at a
+    # 15 minute walk.
+    expect_count: [28, 60]
+
+  water:
+    # Observed 2026-10-06: 313 raw elements, 59 in connected bodies over
+    # 5 ha (2 ha if named) and 47 river strips — of 65 lines, the rest
+    # inside water polygons — covering 88.2 km² and 33% of the region at a
+    # 15 minute walk.
+    expect_count: [85, 180]
+
+  library:
+    # Observed 2026-10-27: 58 raw elements, 55 after dedupe.
+    expect_count: [40, 75]
+
+  dog_park:
+    # Observed 2026-10-27: 27 raw elements, 27 after dedupe.
+    expect_count: [20, 40]

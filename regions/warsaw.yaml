@@ -1,0 +1,96 @@
+# Warsaw, the city plus the reach of its commuter rail.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: warsaw
+label: "Warsaw"
+
+# south, west, north, east. Wide enough for the SKM and WKD termini —
+# Pruszków, Otwock, Legionowo, Grodzisk Mazowiecki — since a commuter line
+# clipped halfway is worse than one left out.
+bbox: [52.05, 20.60, 52.45, 21.35]
+
+# Counts observed 2026-08-20, on a first fetch of this region.
+categories:
+  skatepark:
+    # 79 raw elements, 73 after dedupe (2026-10-07).
+    expect_count: [40, 130]
+
+  suburban_rail:
+    local_name: "SKM & WKD"
+    # Widened from the library's `^S` to take in WKD as well.
+    #
+    # The Warszawska Kolej Dojazdowa is a genuine commuter railway into the
+    # city centre, and reach is a question about how you travel rather
+    # than about who runs the train — leaving it out would put a hole in the
+    # south-west corridor that nothing about the ground justifies. It brands
+    # its lines A1 and A12, so `^S` alone misses all 8 of its relations.
+    #
+    # `service=commuter` would be the principled way to say this and does
+    # not work; see the note in categories.yaml. `^(S|A)` is a local
+    # accident that happens to be exact here: measured 2026-08-20, it
+    # selects SKM's 10 relations plus WKD's 8 out of 115 in this bbox, and
+    # nothing belonging to Koleje Mazowieckie, Polregio or Intercity.
+    query: |
+      (
+        rel[type=route][route=train][ref~"^(S|A)[0-9]"]({{bbox}});
+        rel[type=route][route=light_rail][ref~"^(S|A)[0-9]"]({{bbox}});
+      );
+      node(r:"stop")({{bbox}});
+    # 159 raw stop positions, 78 after the 250 m dedupe, against 79 distinct
+    # station names. It was 81 at 200 m: Wola Grzybowska, Wesoła and
+    # Jeziorki each kept two points until Paris widened the library's
+    # radius.
+    expect_count: [60, 110]
+
+  supermarket:
+    # 820 raw elements, 812 after dedupe.
+    expect_count: [550, 1150]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    # 38 raw elements, and 38 is exactly right: M1's 21 stations plus M2's
+    # 18, less Świętokrzyska where they interchange. Verified by reading the
+    # names, because this is the category whose query the region corrected —
+    # before excluding proposed stations it returned 62, which looks just as
+    # plausible for a two-line metro and is a different city's worth wrong.
+    expect_count: [30, 55]
+
+  climbing_gym:
+    # 17 raw elements, 17 after dedupe.
+    expect_count: [8, 35]
+
+  tram:
+    # 342 points after the 100 m merge, against 261 named stops.
+    expect_count: [250, 470]
+
+  fitness:
+    # 433 raw elements, 421 after dedupe.
+    expect_count: [290, 590]
+
+  swimming:
+    # 47 raw elements, 42 after dedupe.
+    expect_count: [18, 55]
+
+  park:
+    # Observed 2026-10-06: 626 raw elements, 90 in connected bodies over
+    # 10 ha (5 ha if named), covering 11.6 km² and 9% of the region at a
+    # 15 minute walk.
+    expect_count: [60, 130]
+
+  water:
+    # Observed 2026-10-06: 5411 raw elements, 187 in connected bodies over
+    # 5 ha (2 ha if named) and 92 river strips — of 104 lines, the rest
+    # inside water polygons — covering 75.8 km² and 30% of the region at a
+    # 15 minute walk.
+    expect_count: [200, 420]
+
+  library:
+    # Observed 2026-10-27: 347 raw elements, 319 after dedupe.
+    expect_count: [225, 445]
+
+  dog_park:
+    # Observed 2026-10-27: 61 raw elements, 57 after dedupe.
+    expect_count: [40, 80]

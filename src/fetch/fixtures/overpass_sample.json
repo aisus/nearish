@@ -1,0 +1,50 @@
+{
+  "version": 0.6,
+  "generator": "trimmed from a real Overpass response, 2026-08-17",
+  "elements": [
+    {
+      "type": "node",
+      "id": 25874621,
+      "lat": 48.1330475,
+      "lon": 11.5315412,
+      "tags": {"name": "Heimeranplatz", "public_transport": "stop_position"}
+    },
+    {
+      "type": "node",
+      "id": 737174136,
+      "lat": 48.1331046,
+      "lon": 11.5316598,
+      "tags": {"name": "Heimeranplatz", "public_transport": "stop_position"}
+    },
+    {
+      "type": "node",
+      "id": 751989475,
+      "lat": 48.1329277,
+      "lon": 11.5312674,
+      "tags": {"name": "Heimeranplatz", "public_transport": "stop_position"}
+    },
+    {
+      "type": "way",
+      "id": 24789905,
+      "center": {"lat": 48.3174233, "lon": 11.560325},
+      "tags": {"leisure": "pitch", "name": "Skatepark", "sport": "skateboard"}
+    },
+    {
+      "type": "way",
+      "id": 22376391,
+      "center": {"lat": 48.0539577, "lon": 11.6604425},
+      "tags": {"leisure": "pitch", "sport": "skateboard", "surface": "grass"}
+    },
+    {
+      "type": "relation",
+      "id": 1234567,
+      "center": {"lat": 48.1000000, "lon": 11.4000000},
+      "tags": {"leisure": "pitch", "name": "Skateanlage", "sport": "skateboard"}
+    },
+    {
+      "type": "way",
+      "id": 9999999,
+      "tags": {"name": "No center — query forgot 'out center'", "sport": "skateboard"}
+    }
+  ]
+}

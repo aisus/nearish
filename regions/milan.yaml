@@ -1,0 +1,102 @@
+# Milan, with Monza, Sesto and the inner ring of the suburbano.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: milan
+label: "Milan"
+
+# south, west, north, east. 39 by 39 km, a little smaller than Munich's
+# box: Rho and Saronno in the north-west, Monza and Seregno in the north,
+# Melzo in the east, the Pavese short of Pavia in the south. Malpensa is
+# well outside it, as it is outside the city.
+bbox: [45.30, 8.95, 45.65, 9.45]
+
+# Counts observed 2026-10-07, on a first fetch of this region. Coverage is
+# at a 15 minute walk over the 1517 km² bbox.
+categories:
+  skatepark:
+    # 51 raw elements, 50 after dedupe — 59 before shops were excluded in
+    # the library, 8 of them skate shops tagged `sport=skateboard`.
+    expect_count: [30, 90]
+
+  suburban_rail:
+    local_name: "Suburbano"
+    # The library's `^S` ports unchanged: it selects 34 of the 102 train
+    # relations in the bbox, every one an STIBM line from S1 to S19, and
+    # nothing regional — Trenord's R and RE services carry no S ref.
+    #
+    # 186 raw stop positions, 74 after the 250 m dedupe, against 75
+    # distinct names of which two are Porta Garibaldi's passante and
+    # surface halves. One station per point.
+    #
+    # One gap, and it is in OSM rather than the query: Melzo, on the S5
+    # and S6, has stop positions that no S relation lists as a member, so
+    # it is missing. Checked against every railway station node in the
+    # bbox; the other five the selection misses are Milano Centrale, which
+    # no S line calls at, Gerenzano-Turate, Lesmo, Macherio-Sovico and the
+    # Novegro miniature railway. Adding Melzo to the relations fixes it on
+    # the next refresh; naming a node here would not survive the next gap.
+    expect_count: [60, 95]
+
+  supermarket:
+    # 806 raw elements, 790 after dedupe: Esselunga, Lidl, Pam, Carrefour,
+    # Coop and Conad lead, so no chain is missing the way K-Market was in
+    # Helsinki. 47% of the bbox, between Munich's 29 and Paris's 57.
+    expect_count: [550, 1100]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    # 134 elements, 125 distinct names: M1-M5 with M4 complete to Linate.
+    # M1's extension to Sesto Restellone and Monza Bettola is not open —
+    # both are `construction:railway=station`, and were counted as stations
+    # until 2026-10-08. The lifecycle filter removes 11 more. 133 points
+    # after the 50 m merge, because 8 interchanges carry one node per line
+    # — Duomo, Loreto, Cadorna, Centrale and the rest — which overcounts as
+    # Paris does and leaves the map alone.
+    expect_count: [110, 160]
+
+  climbing_gym:
+    # 14 raw elements, 13 after dedupe: Rockspot, Manga, Urban Wall and the
+    # rest, plus the CAI's wall.
+    expect_count: [6, 25]
+
+  tram:
+    # 827 raw platforms, 370 points after the 100 m merge, against 380
+    # names. Lines run out to Cinisello and Rozzano; nothing from the
+    # Milan-Seregno metrotranvia under construction is tagged as a stop.
+    expect_count: [280, 460]
+
+  fitness:
+    # 288 raw elements, 279 after dedupe.
+    expect_count: [180, 400]
+
+  swimming:
+    # 72 raw elements, 70 after dedupe: Milanosport's piscine and the
+    # comunali of the surrounding towns.
+    expect_count: [35, 90]
+
+  park:
+    # 2903 raw elements, 167 in connected bodies over 10 ha (5 ha if
+    # named), 40.5 km² of ground: Parco di Monza (722 ha) leads, then the
+    # Besozza, the Vettabbia and Parco delle Cave. 29% of the bbox, between
+    # Berlin's 25 and Paris's 40.
+    expect_count: [120, 230]
+
+  water:
+    # 1198 raw elements, 136 in connected bodies over 5 ha (2 ha if named)
+    # and 85 river strips of 92 lines, 16.0 km² of ground. Mostly flooded
+    # quarries — Lago Boscaccio, Centroparco, the Cave — with the
+    # Idroscalo, the Lambro and the Olona. 37% of the bbox, beside
+    # Berlin's 35.
+    expect_count: [160, 300]
+
+  library:
+    # Observed 2026-10-27: 194 raw elements, 189 after dedupe.
+    expect_count: [130, 265]
+
+  dog_park:
+    # Observed 2026-10-27: 535 raw elements, 505 after dedupe, nearly all
+    # "area cani".
+    expect_count: [355, 705]

@@ -1,0 +1,133 @@
+# London, Greater London to its boundary in every direction.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: london
+label: "London"
+
+# south, west, north, east. 46 by 59 km, the largest box so far: Coulsdon
+# and Biggin Hill in the south, Uxbridge and Heathrow in the west, Enfield
+# in the north, Upminster in the east. OSM's coastline ends in the Thames
+# estuary east of it — probed 2026-10-08, zero coastline ways — so the
+# Thames is water here and the region does not list sea.
+bbox: [51.28, -0.51, 51.69, 0.34]
+
+# Counts observed 2026-10-08, on a first fetch of this region. Coverage is
+# at a 15 minute walk over the 2690 km² bbox.
+categories:
+  skatepark:
+    # 145 raw elements, 140 after dedupe: Southbank, Stockwell, House of
+    # Vans, and one pub, Hop Kingdom, tagged `sport=skateboard`.
+    expect_count: [100, 200]
+
+  suburban_rail:
+    local_name: "Rail & Overground"
+    # No S-numbering, and no tag that separates suburban from the rest:
+    # probed 2026-10-08, the 440 train relations in the bbox carry
+    # `service=commuter` 157 times, `regional` 144, nothing 32, and only 3
+    # carry the London Overground network — its Lioness line is tagged
+    # National Rail. Elizabeth line, Overground and the National Rail
+    # operators share stations and tags alike.
+    #
+    # Every station on the main-line network, because inside Greater London
+    # every one is a suburban station: long-distance and Eurostar services
+    # stop only at termini and Stratford, which commuter lines serve too. A
+    # local fact, as Helsinki's is.
+    #
+    # Stations, not route members, for Helsinki's reason at larger scale.
+    # Every train relation's stops gave 386 points, and reconciled against
+    # station elements 31 real stations had none within 400 m — the
+    # Overground's Weaver line from Enfield Town to Chingford, Barking
+    # Riverside, the Chessington branch, Hampton Court, Marylebone,
+    # Fenchurch Street — up to 4 km from the nearest point.
+    #
+    # Selected by `network`, because interchanges such as Wimbledon and
+    # Richmond carry National Rail on a `station=subway` node. Paddington's
+    # and Liverpool Street's Elizabeth line nodes carry none, and their
+    # main-line nodes do. Heathrow's airside shuttle is `network=Heathrow
+    # Airport` and falls away with it.
+    query: |
+      nwr[railway~"^(station|halt)$"][network~"National Rail|London Overground|Elizabeth line"]({{bbox}});
+    # 414 elements, 414 names, 411 points after the 250 m merge: one per
+    # station. Every point the relation query found is within 300 m of one
+    # of these, except Horsley, whose station node sits just south of the
+    # bbox. 29% of the bbox.
+    expect_count: [360, 460]
+
+  supermarket:
+    # 1418 raw elements, 1321 after dedupe — below Paris's 1745, over a
+    # larger box. 44% of the bbox.
+    expect_count: [900, 1800]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    local_name: "Tube & DLR"
+    # The DLR is a metro in everything but its tag: driverless, fully
+    # segregated, and its stations are `station=light_rail`. Without it
+    # the Docklands, the Isle of Dogs and Lewisham's branch are holes in
+    # the transit reach.
+    #
+    # Otherwise the library's query, whose `[railway]` London is the reason
+    # for: eight ghost stations here carry `disused:railway` or
+    # `historic:railway` instead. The Heathrow Airport network is the T5
+    # car-park pod system, also `station=light_rail`.
+    query: |
+      nwr[station~"^(subway|light_rail)$"][railway][railway!~"^(construction|proposed|planned|disused|abandoned|razed|dismantled)$"][network!="Heathrow Airport"]({{bbox}});
+    # 304 elements, 302 names, 304 points. Reconciled: the Tube's 272
+    # stations less the 8 outside the bbox (Amersham, Chesham, Chalfont &
+    # Latimer, Chorleywood, Rickmansworth, Croxley, Watford, Epping), plus
+    # the DLR's 45 less the 4 it shares a node with (Bank, Canning Town,
+    # West Ham, Stratford), is 305. 16% of the bbox.
+    expect_count: [270, 340]
+
+  climbing_gym:
+    # 39 raw elements, 36 after dedupe: The Castle, VauxWall, The Font,
+    # Stronghold, three Clip 'n Climbs — every one a climbing centre.
+    expect_count: [22, 55]
+
+  tram:
+    # 70 raw platforms, 39 points after the 100 m merge: exactly
+    # Tramlink's 39 stops.
+    expect_count: [32, 50]
+
+  fitness:
+    # 1105 raw elements, 1029 after dedupe: PureGym, Anytime Fitness,
+    # Nuffield, Virgin Active. 32% of the bbox, as dense as supermarket.
+    expect_count: [700, 1400]
+
+  swimming:
+    # 75 raw elements, 74 after dedupe — 49 before the library matched
+    # `swimming` within a list of sports, which is what London's leisure
+    # centres carry. Low for the city still: many are mapped as a sports
+    # centre with no `sport` tag at all.
+    expect_count: [45, 110]
+
+  park:
+    # 3865 raw elements, 655 in connected bodies over 10 ha (5 ha if
+    # named), 160 km² of ground — 597 of them named, and the largest are
+    # Richmond Park, Bushy Park, Hampstead Heath and Wimbledon Common. 56%
+    # of the bbox, the highest of any region, and true of the place: no
+    # regional park designation is in it, only parks a resident would name.
+    expect_count: [500, 800]
+
+  water:
+    # 6768 raw elements, 711 in connected bodies over 5 ha (2 ha if named)
+    # and 878 river strips, of 1090 lines — the rest run inside the Thames
+    # and dock polygons, and are not widened. 44% of the bbox.
+    #
+    # London's rivers arrive as many short ways, the Thames 144 and the
+    # Colne 78, and brooks such as Pymmes Brook and Silk Stream are tagged
+    # `waterway=river`; areas alone are 27% of the bbox. While the overlap
+    # was computed this was the slowest category of any region, 12.7 s at
+    # 15 minutes, the strips most of it.
+    expect_count: [1400, 2200]
+
+  library:
+    # Observed 2026-10-27: 473 raw elements, 452 after dedupe.
+    expect_count: [315, 635]
+
+  dog_park:
+    # Observed 2026-10-27: 87 raw elements, 84 after dedupe.
+    expect_count: [60, 120]

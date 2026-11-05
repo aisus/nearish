@@ -1,0 +1,631 @@
+# The category library. This file is data, not code: adding, removing or
+# retuning a category is an edit here plus a re-fetch, never a code change.
+# If a category ever needs code, the schema is wrong.
+#
+# What lives here is what travels between places. `nwr[shop=supermarket]` is
+# right in every city, so duplicating it per region would mean fixing the
+# same bug in five files. What is only true of one place — the bbox, the
+# observed count range, which categories start ticked — lives in
+# `regions/<id>.yaml`, which names the library categories a region uses and
+# pins those local facts. A region may also override any key below, or
+# inline a `query:` of its own for something that exists nowhere else.
+#
+# Every query below was validated against overpass-turbo before landing here.
+# The evidence quoted in the comments is from Munich, because that is where
+# they were tuned; a second region is what will show whether they port.
+#
+# `{{bbox}}` is substituted with the region's bbox. The runner wraps each
+# query with `[out:json][timeout:N];` and an `out` clause — do not repeat
+# those here.
+#
+# Per-category keys, all optional except `query` and `color`:
+#
+#   label             shown in the panel; defaults to the category key
+#   local_name        what a region calls it, after the label (region files)
+#   color             palette slot, one of PALETTE_SLOTS in src/types.ts
+#   query             Overpass selection, without the wrapper
+#   geometry          point | area                            (default point)
+#   min_area_m2       drop bodies smaller than    (area only, default none)
+#   named_min_area_m2 the same, for a named body  (default min_area_m2)
+#   min_piece_area_m2 drop pieces of a passing body smaller than (default none)
+#   simplify_m        simplification tolerance    (area only, default none)
+#   line_width_m      widen a line into a strip this wide     (default none)
+#   default_minutes   starting time budget                    (default 15)
+#   default_mode      walk | bike                             (default walk)
+#   dedupe_m          merge radius for near-duplicates        (default below)
+#
+# Every category starts at a 15 minute walk, and that is deliberate. Mixed
+# defaults — 10 minutes for transit, 20 by bike for the sparse ones — were
+# the realistic criteria, and confused anyone new to the tool: the map
+# opened answering something they had not asked. The keys stay per
+# category so a region can still differ, but the library does not.
+#
+# `min_area_m2` applies to a *connected body*, not to one feature: OSM cuts
+# a river into polygons at bridges and boundaries, and judging the pieces
+# separately draws it as a dashed line. Features sharing a vertex are one
+# body.
+#
+# `geometry: area` swaps the wrapper from `out center tags;` to `out geom;`,
+# so areas arrive as polygons instead of centroids. Use it where the size
+# of the thing is the point — a park measured from its middle is a lie, a
+# supermarket measured from its middle is not. Changing this value makes the
+# cached response for that category unusable; the run detects that and tells
+# you to re-fetch rather than quietly answering with the old shape.
+#
+# `expect_count` is rejected here on purpose: a count range is an observed
+# fact about one place, not a property of the query, and a Munich range
+# applied silently to Berlin is exactly the kind of plausible-looking wrong
+# answer the check exists to catch. It belongs in the region file, next to
+# `default_enabled`.
+#
+# Order here is for reading: transport, then green space, then water, then
+# the everyday things. The panel sorts by label, and each category names its
+# palette slot, so a category's place here decides neither. Slots are listed
+# in `src/types.ts` and drawn from `src/lib/basemaps.ts`; two categories
+# claiming the same one is a config error.
+#
+# Thirteen categories fill the thirteen slots, past the point where
+# categorical colour separates cleanly, so three near-pairs are
+# unavoidable: climbing_gym's indigo against library's violet, skatepark's
+# yellow against tram's amber, and sea's teal against swimming's cyan.
+# That is accepted: the overlap is the part left clear, and a reach's tint
+# only says why.
+
+# Merge radius for near-duplicate places. OSM routinely carries both a node
+# and an enclosing way for one facility. Per-category override below.
+default_dedupe_m: 50
+
+categories:
+  suburban_rail:
+    label: "Train"
+    color: fuchsia
+    default_minutes: 15
+    default_mode: walk
+    # Stop positions are per-track, so a station yields up to 6 of them,
+    # and the merge radius has to be wide enough to collapse the worst
+    # interchange in any region. Measured 2026-08-20, points kept against
+    # the number of distinct station names in the response:
+    #
+    #            raw  names   50 m  100 m  150 m  200 m  300 m  400 m
+    #   Munich   230    117    119    116    116    116    116    116
+    #   Berlin   343    160    268    234    168    160    160    159
+    #
+    # 200 m is where both reach one point per station and neither has yet
+    # merged two real ones. 100 m was enough for Munich alone but leaves
+    # Berlin 74 points over its own station count, because Westkreuz and
+    # Ostkreuz spread six platforms across several hundred metres — an
+    # inflated count that would look entirely reasonable in the panel.
+    # Above 300 m Berlin starts merging genuinely distinct stations, which
+    # is the other end of the range and the reason not to go wider.
+    #
+    # Munich loses one name at 100 m and no further ones out to 300 m: two
+    # stations there really are within a platform length of each other.
+    #
+    # Paris moved it to 250 m. Measured 2026-10-06, same method:
+    #
+    #            raw  names  200 m  250 m  300 m
+    #   Munich   230    117    116    116    116
+    #   Berlin   343    161    160    160    160
+    #   Warsaw   159     79     81     78     77
+    #   Belgrade  34     18     18     18     18
+    #   Paris    572    262    299    250    247
+    #
+    # Paris's names overstate its stations by about 13 — per-track variants
+    # such as "Gare du Nord – Voie 41", and spellings like Juvisy beside
+    # Juvisy-sur-Orge — so 250 is one point per station there, where 200
+    # left 52 stations doubled by long suburban platforms. Every name 250 m
+    # absorbs is one of those variants or a connected interchange (Magenta
+    # into Gare du Nord). Warsaw loses no further name and three doubled
+    # stations; the other three do not move.
+    dedupe_m: 250
+    # Frequent local rail into a city, whatever it is branded: S-Bahn in
+    # Germany, SKM in Poland. What it is *not* is the regional and
+    # long-distance trains sharing the same stations, and separating those
+    # is the whole difficulty.
+    #
+    # Membership of an S-numbered route relation is what does it. In Munich
+    # `railway=station` alone returns 219, most of them not S-Bahn, and
+    # filtering on `network~MVV` returns only 32 because that tag is applied
+    # inconsistently. Neither is usable — the relation is.
+    #
+    # `service=commuter` is the tag that ought to answer this and does not.
+    # Measured across Warsaw's 115 train relations: it misses all 8 WKD
+    # relations and 2 of the 10 SKM ones, while catching 2 regional Koleje
+    # Mazowieckie services and 2 belonging to another city's network. Same
+    # inconsistency as `network~MVV`, so the same verdict.
+    #
+    # Station *nodes* are not route members (verified: that query returns
+    # 0), so this necessarily selects stop positions and relies on the
+    # dedupe above.
+    #
+    # The union across `route=train` and `route=light_rail` is not two
+    # concepts — it is one concept and two mapper conventions. Measured
+    # 2026-08-20, ^S route relations by tag:
+    #
+    #             route=train   route=light_rail
+    #   Munich             26                  0
+    #   Berlin              0                 38
+    #   Warsaw             10                  0
+    #
+    # A query written against Munich alone returns *nothing at all* in
+    # Berlin, which is how this was found. The networks are the same kind of
+    # system; mappers simply disagree, so the library asks for both.
+    #
+    # The S-numbering is not a German quirk either: Warsaw's SKM is Szybka
+    # Kolej Miejska, and its S1-S40 are exactly the 10 relations this
+    # selects out of 115 — the other 105 being Koleje Mazowieckie, Intercity
+    # and EuroCity, all correctly excluded. Three countries, one query.
+    #
+    # It is not universal, though. Belgrade brands BG Voz as BG1/BG2 and
+    # overrides this query in its region file. That is the right place for
+    # it: a fourth prefix in the library would be a list of local facts
+    # wearing a portable query's clothes, and each region's expect_count is
+    # what catches the case this cannot anticipate — a genuine light rail
+    # whose refs happen to start with S.
+    #
+    # The second {{bbox}} is load-bearing: the first one filters the
+    # *relations*, and without the second, `node(r:"stop")` returns every
+    # stop on those lines — including 34 well outside the Munich region
+    # (Erding, Freising, Geltendorf, the airport). The other categories are
+    # clipped by their own bbox filter, so this keeps all three consistent.
+    query: |
+      (
+        rel[type=route][route=train][ref~"^S[0-9]"]({{bbox}});
+        rel[type=route][route=light_rail][ref~"^S[0-9]"]({{bbox}});
+      );
+      node(r:"stop")({{bbox}});
+
+  metro:
+    label: "Metro"
+    color: red
+    default_minutes: 15
+    default_mode: walk
+    # Much simpler than suburban_rail, because `station=subway` is an OSM
+    # tag rather than a local brand and is the one place OSM already has the
+    # abstraction. It is applied consistently and sits on station nodes
+    # rather than per-track stop positions, so no relation traversal and no
+    # widened dedupe are needed. Measured against actual station counts:
+    # Munich 102 elements for 96 stations, Berlin 180 for 175, Warsaw 62 for
+    # ~42. Belgrade returns zero — its metro is still under construction —
+    # so Belgrade simply does not list this category.
+    #
+    # The lifecycle exclusion is load-bearing, and excluding only
+    # `construction` was not enough. Warsaw returned 62 stations, which
+    # looks like a plausible number for a two-line metro — 24 of them were
+    # `railway=proposed`: the whole of the planned M3 to Wilanów (refs
+    # G01-G20) and an unbuilt M2 branch (E02-E07). A reach drawn from a
+    # station nobody can use is a lie, and it is one that would have looked
+    # entirely reasonable on the map.
+    #
+    # Matched as a family rather than value by value, because the next city
+    # will use whichever of these its mappers prefer.
+    #
+    # `[railway]` is required too, because lifecycle also travels as a key
+    # prefix, and `!~` alone keeps any element with no `railway` tag. Those
+    # were taken for under-tagged real stations until London's eight ghost
+    # stations — Down Street, Brompton Road, York Road, all tagged
+    # `disused:railway` or `historic:railway`. Every one in six regions was
+    # a ghost: Berlin's Französische Straße (closed 2020), Paris's Arsenal,
+    # Munich's unbuilt Freiham-Zentrum, and Alexanderplatz's stop area
+    # relation, a duplicate of its node. Checked 2026-10-08 on cached
+    # responses; no station with a `railway` value is lost.
+    query: |
+      nwr[station=subway][railway][railway!~"^(construction|proposed|planned|disused|abandoned|razed|dismantled)$"]({{bbox}});
+
+  tram:
+    label: "Tram stop"
+    color: amber
+    default_minutes: 15
+    default_mode: walk
+    # Stops are mapped per platform — a pair facing each other across the
+    # street, and up to six around a junction — so this needs a wider merge
+    # than the default. Measured 2026-08-20 across all four regions, the
+    # distance from a platform to the nearest other platform *of the same
+    # stop* runs to a median of 28-44 m and a 90th percentile of 83-145 m,
+    # while the nearest platform of a *different* stop starts at 113-169 m
+    # (5th percentile) and has a median around 310 m. 100 m sits in that
+    # gap.
+    #
+    # It does not resolve cleanly the way suburban_rail's 200 m did, and it
+    # cannot: tram stops are ~300 m apart, so any radius wide enough to
+    # catch every straggling platform starts eating genuine neighbours.
+    # Points kept against actual stop counts at 100 m: Munich 190/179,
+    # Berlin 550/484, Warsaw 342/261, Belgrade 118/92.
+    #
+    # Erring narrow is deliberate. Overcounting leaves the panel number high
+    # while the reach stays right, because the surplus points sit on top
+    # of ground already covered. Merging two real stops puts a hole in the
+    # map. Widening to 140 m would trade 9 of Berlin's stops for a better
+    # number, which is the wrong way round.
+    dedupe_m: 100
+    #
+    # `railway=tram_stop` is applied consistently in all four regions, which
+    # is not something the rail categories could claim. Measured 2026-08-20:
+    # Munich 259, Berlin 1064, Warsaw 662, Belgrade 198.
+    #
+    # Belgrade is the reason this exists. It has no metro, so without trams
+    # the map showed a city of two commuter rail lines and nothing else —
+    # which says more about the category list than about Belgrade.
+    query: |
+      node[railway=tram_stop]({{bbox}});
+
+  park:
+    # The category areas exist for. A park measured from its centroid is the
+    # tool's second known lie, and the Englischer Garten — four kilometres
+    # end to end — was a dot.
+    label: "Park"
+    color: green
+    geometry: area
+    default_minutes: 15
+    default_mode: walk
+    # `leisure=park` returns 1464 in Munich, denser than supermarket, and
+    # density alone can rule a category out: a category present almost
+    # everywhere adds nothing to an overlap. Most of that count is
+    # street furniture — the smallest is 0.037 ha, a traffic island with a
+    # bench on it.
+    #
+    # The count is the wrong thing to tune against, though. What matters is
+    # how much of the region its reach covers at a normal budget, and that
+    # is what "are you in Munich" actually means. Measured 2026-08-21 over
+    # the Munich bbox (2135 km²) at a 15 minute walk, against the
+    # categories already in this file as yardsticks:
+    #
+    #   park over  1 ha    413 places  579 km²   27% of the region
+    #   supermarket        870         618       29%      <- the dense one
+    #   park over  5 ha    110         349       16%
+    #   park over 15 ha     42         206       10%
+    #   skatepark           91         207       10%
+    #   park over 20 ha     28         159        7%      <- here
+    #   tram               190         104        5%
+    #   cinema              52          85        4%
+    #   climbing_gym        14          32        2%
+    #
+    # At 1 ha the reach was indistinguishable from supermarket's and blanketed
+    # the city, which is the failure that removed union-across-categories.
+    # 2-10% is where the categories that work sit, so anything from about
+    # 15 ha up is defensible on this measure alone and it does not settle
+    # the choice.
+    #
+    # What settled it was looking at all four cities against a basemap that
+    # renders green space. 20 ha was tried first and is too tight: it is a
+    # Munich-shaped answer, picked because the survivors there are the parks
+    # a resident would name, and it drops green that is plainly a park in
+    # the other three. 15 ha landed at 10% of Munich, the same footprint as
+    # skatepark, and was still too tight on the map.
+    #
+    # 10 ha replaced it. Measured 2026-10-06 on connected bodies, which is
+    # what the cut applies to, coverage at a 15 minute walk clipped to each
+    # region:
+    #
+    #             15 ha        10 ha        5 ha
+    #   Munich    70  10.1%    96  12.2%   150  16.8%
+    #   Berlin   155  15.0%   214  19.4%   375  27.8%
+    #   Warsaw    39   4.8%    48   5.8%    96   9.7%
+    #   Belgrade  18   3.6%    24   4.5%    46   7.4%
+    #
+    # Ground in parks barely moves (Munich 22.7, 25.0, 28.1 km²); coverage
+    # does, because what a lower cut adds is small parks scattered across
+    # the city. 5 ha takes Berlin to supermarket's 29%.
+    #
+    # 5 ha for a body with a name, the rule water uses at 2 ha. Checked
+    # 2026-10-06 against the Voyager basemap: 10 ha dropped Tašmajdan
+    # (6.7 ha, central Belgrade), Bavariapark in Munich, Preußenpark and
+    # Rudolph-Wilde-Park in Berlin, Park Pięciu Sióstr in Warsaw — nearly
+    # every named body at 5-10 ha is a park a resident would name. The
+    # unnamed ones are estate greens: 29 of Berlin's 40 carry
+    # `protection_title=Geschützte Grünanlage`. Below 5 ha the names turn
+    # into squares — Platz, Skwer, Grünanlage. Coverage, same measure:
+    #
+    #             10 ha    named 5 ha   any 5 ha   named 3 ha
+    #   Munich    12.2%    15.3%        16.8%      16.8%
+    #   Berlin    19.4     24.7         27.8       27.7
+    #   Warsaw     5.8      9.2          9.7       11.1
+    #   Belgrade   4.5      6.9          7.4        7.1
+    #
+    # Retuning this needs no Overpass traffic: the cached response holds
+    # every park and the cut is applied on the way out.
+    # Zero, and load-bearing. Proximity dedupe compares bounding-box
+    # centres, and a small park near the middle of a large one has almost
+    # the same centre — so at 50 m Munich's parks lost Riemer Park, 138.7
+    # ha, and the count moved by one. Areas do not need
+    # the merge anyway: a node-mapped duplicate carries no shape, so
+    # min_area_m2 already removes it.
+    dedupe_m: 0
+    min_area_m2: 100000
+    named_min_area_m2: 50000
+    # A reach buffers by hundreds of metres, so boundary detail finer than
+    # this is invisible in the output. Measured on the 413 parks over 1 ha,
+    # which is the widest set this ever ran against: 17823 vertices raw,
+    # 6405 at 10 m, 4203 at 25 m, 2917 at 50 m, for area losses of 0.14%,
+    # 0.77% and 2.87%. 25 m is a quarter of the bytes for under a percent of
+    # the ground; 50 m saves a little more and costs four times the area.
+    simplify_m: 25
+    # Deliberately just `leisure=park`. `landuse=grass` and `leisure=garden`
+    # were considered and left out: garden alone returns 1426 in Munich and
+    # is mostly private plots, and grass is roadside verge. Both would pass
+    # a count check while covering ground nobody would call a park, which is
+    # why meta.json records total area alongside the count.
+    query: |
+      nwr[leisure=park]({{bbox}});
+
+  water:
+    label: "Water"
+    color: blue
+    geometry: area
+    default_minutes: 15
+    default_mode: walk
+    dedupe_m: 0
+    # 5 ha, a third of park's, and the difference is what the two categories
+    # are noisy with. A small park is a traffic island; a small lake is often
+    # a real named one people swim in. Großer Olympiasee is 6.6 ha, and a
+    # 15 ha cut left it off the map — which is how the number was found.
+    # What 5 ha drops is mostly Weiher, Baggersee and Kiesgrube: fishing
+    # ponds and gravel pits, the largest being Böhmerweiher at 4.8 ha.
+    #
+    # Measured on the connected bodies, which is what the cut applies to:
+    # 103 Munich features pass on their own area, 342 as bodies. The
+    # difference is almost entirely the Isar, which OSM stores as 89 pieces.
+    min_area_m2: 50000
+    # 2 ha for a body with a name. Checked 2026-10-06 against the Voyager
+    # basemap: 5 ha dropped Teufelssee (2.2 ha) and the Grunewald chain of
+    # Hubertus-, Koenigs- and Dianasee in Berlin, Emmeringer See in Munich,
+    # Jezioro Gocławskie in Warsaw. What 2-5 ha holds besides them is
+    # Warsaw's unnamed fish-farm ponds, retention basins and Belgrade's
+    # oxbows inside water already drawn — and a name is what separates the
+    # two. Coverage at a 15 minute walk, river strips included:
+    #
+    #             5 ha     named 2 ha   any 2 ha
+    #   Munich    24.8%    27.7%        28.5%
+    #   Berlin    31.2     35.4         36.3
+    #   Warsaw    27.4     30.2         32.4
+    #   Belgrade  32.4     32.6         32.9
+    #
+    # Two other rules were measured and rejected. Excluding `water=basin`
+    # would drop the Ismaninger Teichgebiet and the Speichersee's eastern
+    # basin, open water tagged `basin=retention`; excluding `intermittent`
+    # removes three bodies across four regions. Keeping every piece tagged
+    # as a watercourse brings in fish ladders and 0.0 ha canal fragments.
+    named_min_area_m2: 20000
+    simplify_m: 25
+    # Rivers are in. They were excluded first, on the grounds that a river
+    # is within reach of nearly everywhere — measured at a 15 minute walk,
+    # coverage clipped to the region:
+    #
+    #                          Munich            Belgrade
+    #   all water, 15 ha    25 places 8%      24 places 25%
+    #   minus rivers, 15 ha 17        4%       8         7%
+    #
+    # 25% of Belgrade looked like the "are you in Belgrade" failure and is
+    # not. That failure is a category that answers yes everywhere; this one
+    # says no to three quarters of the region, and the suburbs and outer
+    # districts that fail it fail it genuinely. Supermarket covers 29% of
+    # Munich and nobody has ever proposed dropping it.
+    #
+    # The exclusion also made the category answer a question nobody asked.
+    # Belgrade is a city on the confluence of the Danube and the Sava; a
+    # water category there that omits both is not a more careful answer, it is
+    # a wrong one. The high number is a true fact about the place.
+    #
+    # No `water=*` filter at all, which is also what the tagging supports:
+    # 1755 of Munich's 3271 carry no `water` tag, so any filter phrased
+    # inclusively would drop more than half of them.
+    #
+    # River areas are not enough on their own. The Würm (relation 2222192)
+    # is 39.4 km of main stream inside the Munich bbox and only 20% of it
+    # lies inside any `natural=water` polygon: its banks are traced in some
+    # stretches and not others, and no threshold can draw what is not there.
+    # So the centre lines come too, as `waterway=river` ways, and each is
+    # widened into a strip. Probed 2026-10-06, unclipped way lengths:
+    #
+    #             river           canal
+    #   Munich    212 ways 283 km  259 ways 145 km
+    #   Berlin    129      165     212      167
+    #   Warsaw    138      492     443      183
+    #   Belgrade   76      387     201      262
+    #
+    # Rivers only. `stream` would cover nearly everywhere, and canals
+    # include hydro channels; culverts and tunnels are not water anyone can
+    # see. The strips are exempt from the area cut — the tag already says
+    # river — and clipped to the bbox, because a river way runs on past it.
+    line_width_m: 20
+    query: |
+      (
+        nwr[natural=water]({{bbox}});
+        way[waterway=river][tunnel!=culvert][tunnel!=yes]({{bbox}});
+      );
+
+  sea:
+    label: "Sea"
+    color: teal
+    geometry: area
+    default_minutes: 15
+    default_mode: walk
+    dedupe_m: 0
+    # OSM has no sea polygon. The sea is implied by `natural=coastline`
+    # ways, land on their left, so this fetches those as lines and widens
+    # them the way water widens rivers: reach from the shore is reach from
+    # the sea, for anywhere on land. A closed coastline rings an island and
+    # stays a line rather than becoming an area of water.
+    #
+    # Its own category rather than part of water, measured on Helsinki
+    # 2026-10-06 at a 15 minute walk. Lakes alone already cover 47% of the
+    # bbox there; folding the coast in took water to 71%, nearly yes
+    # everywhere, and from 2.6 s to 14.6 s while the overlap was computed.
+    # Apart, each answers its own question.
+    #
+    # Inland regions do not list it: it would return nothing.
+    line_width_m: 20
+    # The cut applies to islands, a closed line being judged by the land it
+    # rings; open coastline always passes. Helsinki's coast is 1683 ways,
+    # 1251 of them closed and mostly skerries — median perimeter 85 m. A
+    # skerry's strip adds almost nothing a person on land can use, since the
+    # mainland shore is nearer.
+    #
+    # 1 ha keeps 200 of the 1251, down to Lonna (1.5 ha, a ferry stop with a
+    # restaurant). No lower cut for a name: nearly every rock in a Finnish
+    # archipelago has one (-kari, -luoto, -paasi), so names select nothing.
+    min_area_m2: 10000
+    query: |
+      way[natural=coastline]({{bbox}});
+
+  supermarket:
+    label: "Supermarket"
+    color: pink
+    default_minutes: 15
+    default_mode: walk
+    # `shop=convenience` and kiosks are deliberately excluded — a corner
+    # shop is not a substitute for a supermarket in the question this tool
+    # is asking.
+    query: |
+      nwr[shop=supermarket]({{bbox}});
+
+  # Appended rather than grouped with suburban_rail so the existing
+  # categories keep their palette positions — overlay colours are assigned
+  # in file order.
+
+  fitness:
+    label: "Gym"
+    color: lime
+    default_minutes: 15
+    default_mode: walk
+    # `leisure=fitness_centre` is the tag actually in use: 380 / 536 / 433 /
+    # 163 across the four regions. The alternative spelling
+    # `sport=fitness` + `leisure=sports_centre` returns 14 / 9 / 4 / 0, so
+    # there is nothing to union here — unlike suburban_rail, this convention
+    # won outright.
+    #
+    # Deliberately not climbing_gym's sibling: that one narrows a broad
+    # `sport=` tag down to indoor venues, while this is a single unambiguous
+    # tag and needs no help.
+    query: |
+      nwr[leisure=fitness_centre]({{bbox}});
+
+  swimming:
+    label: "Swimming pool"
+    color: cyan
+    default_minutes: 15
+    default_mode: walk
+    # The narrow selection, for the same reason climbing_gym has one.
+    # `leisure=swimming_pool` alone returns 2095 in Munich and 2328 in
+    # Berlin against 355 in Warsaw and 128 in Belgrade — which is not a fact
+    # about those cities but about German mappers recording private garden
+    # pools. Filtering on `access` only halves it, because a hotel pool is
+    # rarely tagged at all.
+    #
+    # `sport=swimming` + `leisure=sports_centre` asks for the thing someone
+    # can actually go and swim in: 38 / 76 / 32 / 4. Sparse, which is what
+    # makes an overlap worth looking at.
+    #
+    # `swimming` is matched as one value of a list, because a leisure centre
+    # is tagged with everything it offers: London's 49 became 75 on
+    # 2026-10-08 — York Hall, Brockwell Lido, Clissold, Woolwich Waves, all
+    # `sport=swimming;fitness` and the like.
+    query: |
+      nwr[sport~"(^|;)swimming(;|$)"][leisure=sports_centre]({{bbox}});
+
+  climbing_gym:
+    label: "Climbing gym"
+    color: indigo
+    default_minutes: 15
+    default_mode: walk
+    # `sport=climbing` alone returns 46 in Munich, but most of that is
+    # outdoor rock: boulders, crags, `natural=cliff`, climbing towers tagged
+    # `leisure=pitch` (one explicitly `indoor=no`), even a playground
+    # climbing frame. Requiring `leisure=sports_centre` narrows it to the
+    # actual gyms and nothing else — verified by reading all 15 names.
+    #
+    # Sparse — ~14 in the whole Munich region — so a 15 minute walk opens
+    # on little. It starts there anyway, with everything else; see the note
+    # on defaults at the top of this file.
+    query: |
+      nwr[sport=climbing][leisure=sports_centre]({{bbox}});
+
+  # Everything below is appended rather than slotted in beside the category
+  # it resembles — tram belongs next to metro and reads better there, but
+  # moving either would recolour every region already fetched.
+
+  skatepark:
+    label: "Skatepark"
+    color: yellow
+    # Stays a point, having been an area for exactly one commit. 81 of
+    # Munich's 93 elements are ways, so `geometry: area` did give most
+    # skateparks a real outline — and that was the point of trying it,
+    # because a wrong result would have been obvious rather than plausible.
+    # It is not worth keeping: a 40 m skatepark inside a 900 m radius is a
+    # point at city scale, so the reach was indistinguishable and the
+    # only visible change was 12 kB of outlines nobody reads. Areas are for
+    # things whose size is the question, which is parks.
+    default_minutes: 15
+    default_mode: walk
+    # NOTE: `leisure=skatepark` returns ZERO in both Munich and Berlin —
+    # every skatepark in either is `leisure=pitch` + `sport=skateboard`. It
+    # is kept in the union because it costs nothing and is correct where it
+    # is used, but `sport=skateboard` is what actually finds them.
+    #
+    # It also finds skate shops, which carry the same tag: 8 of Milan's 59
+    # elements on 2026-10-07, 3 of them closed and kept as `disused:shop`.
+    # Excluding shops rather than requiring a `leisure` value keeps the
+    # skateparks mapped as a sports hall or a pedestrian plaza.
+    query: |
+      (
+        nwr[leisure=skatepark]({{bbox}});
+        nwr[sport=skateboard][!shop][!"disused:shop"]({{bbox}});
+      );
+
+  library:
+    label: "Library"
+    color: violet
+    default_minutes: 15
+    default_mode: walk
+    # Broad: university and specialist libraries are in, as a broad
+    # question tolerates. Private ones are out, 13 of Munich's 171 (probed
+    # 2026-10-27). Public bookcases are `amenity=public_bookcase` and do
+    # not leak in: one Bücherschrank in Munich, none elsewhere.
+    #
+    # Measured 2026-10-27, coverage of the region at a 10 and a 15 minute
+    # walk:
+    #
+    #           places   10 min   15 min
+    #   Belgrade    55     4%       8%
+    #   Helsinki    98     5       10
+    #   Munich     158     6       12
+    #   Amsterdam  106     6       12
+    #   Berlin     207     7       15
+    #   Warsaw     319    11       19
+    #   Milan      189    12       24
+    #   London     452    16       32
+    #   Paris      591    23       41
+    #
+    # London and Paris are dense because they are, not because the query
+    # is broad: university and specialist libraries are 19 of London's 473
+    # and about 43 of Paris's 611, and the rest are borough branches and
+    # every commune's médiathèque.
+    query: |
+      nwr[amenity=library][access!~"^(private|no)$"]({{bbox}});
+
+  dog_park:
+    label: "Dog park"
+    color: brown
+    default_minutes: 15
+    default_mode: walk
+    # A fenced run, which says as much about local law as about dogs.
+    # Munich lets them off the lead by default and returned 19, half of
+    # them dog clubs and schools, so it does not list this; Helsinki's 214
+    # are nearly all koira-aitaus. `dog=unleashed` and names like
+    # Hundewiese add nothing there. A region lists it where the names show
+    # fenced runs. A point, as skatepark is: a run is small at city scale,
+    # and the 50 m merge folds a small-dog pen into its park.
+    #
+    # Measured 2026-10-27, same method as library:
+    #
+    #           places   10 min   15 min
+    #   Belgrade    27     2%       4%
+    #   London      84     3        5
+    #   Warsaw      57     3        6
+    #   Amsterdam  120     4        7
+    #   Berlin      81     4        7
+    #   Paris      171     7       14
+    #   Helsinki   187    10       18
+    #   Milan      505    21       34
+    query: |
+      nwr[leisure=dog_park][access!~"^(private|no)$"]({{bbox}});

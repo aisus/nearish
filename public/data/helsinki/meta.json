@@ -1,0 +1,132 @@
+{
+  "region": "helsinki",
+  "label": "Helsinki",
+  "fetched_at": "2026-11-04T22:47:05.761Z",
+  "osm_as_of": "2026-11-02T21:21:26Z",
+  "bbox": [
+    60.1,
+    24.4,
+    60.42,
+    25.3
+  ],
+  "categories": {
+    "suburban_rail": {
+      "label": "Train",
+      "count": 45,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 8,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "metro": {
+      "label": "Metro",
+      "count": 30,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": true,
+      "color_index": 7,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "tram": {
+      "label": "Tram stop",
+      "local_name": "Tram & Jokeri",
+      "count": 193,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 3,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "park": {
+      "label": "Park",
+      "count": 516,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 2,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "water": {
+      "label": "Water",
+      "count": 510,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 0,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "sea": {
+      "label": "Sea",
+      "count": 627,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 9,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "supermarket": {
+      "label": "Supermarket",
+      "count": 451,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 1,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "fitness": {
+      "label": "Gym",
+      "count": 244,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 6,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "swimming": {
+      "label": "Swimming pool",
+      "count": 31,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 5,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "climbing_gym": {
+      "label": "Climbing gym",
+      "count": 11,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 10,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "skatepark": {
+      "label": "Skatepark",
+      "count": 68,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 11,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "library": {
+      "label": "Library",
+      "count": 98,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 4,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "dog_park": {
+      "label": "Dog park",
+      "count": 187,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 12,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    }
+  }
+}

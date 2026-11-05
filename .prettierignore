@@ -1,0 +1,10 @@
+dist/
+cache/
+public/data/
+# Copies of OpenFreeMap's styles, kept as upstream wrote them.
+public/styles/
+package-lock.json
+src/fetch/fixtures/
+
+# Prose, left as written: Prettier would only rewrite its emphasis markers.
+*.md

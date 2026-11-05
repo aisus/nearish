@@ -1,0 +1,123 @@
+{
+  "region": "paris",
+  "label": "Paris",
+  "fetched_at": "2026-11-04T22:52:36.391Z",
+  "osm_as_of": "2026-11-02T21:21:26Z",
+  "bbox": [
+    48.65,
+    2,
+    49.05,
+    2.65
+  ],
+  "categories": {
+    "suburban_rail": {
+      "label": "Train",
+      "local_name": "RER & Transilien",
+      "count": 250,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 8,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "metro": {
+      "label": "Metro",
+      "count": 355,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": true,
+      "color_index": 7,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "tram": {
+      "label": "Tram stop",
+      "count": 272,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 3,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "park": {
+      "label": "Park",
+      "count": 292,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 2,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "water": {
+      "label": "Water",
+      "count": 496,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 0,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "supermarket": {
+      "label": "Supermarket",
+      "count": 1747,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 1,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "fitness": {
+      "label": "Gym",
+      "count": 746,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 6,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "swimming": {
+      "label": "Swimming pool",
+      "count": 246,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 5,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "climbing_gym": {
+      "label": "Climbing gym",
+      "count": 66,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 10,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "skatepark": {
+      "label": "Skatepark",
+      "count": 176,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 11,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "library": {
+      "label": "Library",
+      "count": 590,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 4,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "dog_park": {
+      "label": "Dog park",
+      "count": 172,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 12,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    }
+  }
+}

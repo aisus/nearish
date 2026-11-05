@@ -1,0 +1,19 @@
+# Raw Overpass responses. Regenerable, and we don't want a re-fetch
+# showing up as a diff — the committed output is the GeoJSON under
+# public/data, not this.
+cache/
+
+# Local environment.
+.env
+.env.*
+
+# Node / Vite
+node_modules/
+dist/
+
+# Vite's dependency pre-bundling cache. Normally lives inside
+# node_modules, but falls back to the project root when it cannot resolve
+# that location — so it needs ignoring in both places.
+.vite/
+
+*.DS_Store

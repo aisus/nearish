@@ -1,0 +1,127 @@
+# Helsinki, with Espoo and Vantaa.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: helsinki
+label: "Helsinki"
+
+# south, west, north, east. Kirkkonummi in the west and Kerava in the north,
+# the outer ends of the commuter rail most people use, and Vuosaari in the
+# east. A good share of the southern edge is sea.
+bbox: [60.10, 24.40, 60.42, 25.30]
+
+# Counts observed 2026-10-06, on a first fetch of this region.
+
+categories:
+  skatepark:
+    # 70 raw elements, 69 after dedupe, once shops were excluded.
+    expect_count: [40, 110]
+
+  suburban_rail:
+    # Station nodes, not route members — the only region so far that
+    # needs them. HSL's lines are lettered (A, E, I, K, P, U and the rest),
+    # so the library's `^S` returns nothing, and selecting them by
+    # `network=HSL` was clean but read an incomplete map: the Ring Rail's I
+    # and P relations jump from Malminkartano to Aviapolis, skipping
+    # Myyrmäki, Louhela, Martinlaakso, Vantaankoski, Kivistö, the airport
+    # and Leinelä. 35 stations where there are 44.
+    #
+    # Every passenger station in this bbox is a commuter station — long-
+    # distance trains stop only at stations commuters share — which is a
+    # local fact, and why this is not a library query. `light_rail!=yes`
+    # removes two Jokeri stations wrongly carrying `train=yes`.
+    query: |
+      node[railway~"^(station|halt)$"][train=yes][light_rail!=yes]({{bbox}});
+    # 45: the 44 stations, and Pasila's car-carrier terminal on ground
+    # Pasila and Ilmala already cover.
+    expect_count: [38, 55]
+
+  supermarket:
+    # The library query found 211, with S-market, Lidl, K-Supermarket,
+    # Prisma and K-Citymarket and no K-Market or Alepa at all — the
+    # commonest grocery chains in the region. Probed 2026-10-07, they are
+    # `shop=convenience`, every one of them with a `brand` tag: K-Market
+    # 134, Alepa 114, and 3 of S Group's Sale. They are neighbourhood
+    # groceries, not the corner kiosks the library excludes, so they come
+    # in by brand. The rest of the branded convenience shops are fuel
+    # stations (Neste, St1, Shell, Teboil), which stay out.
+    query: |
+      (
+        nwr[shop=supermarket]({{bbox}});
+        nwr[shop=convenience][brand~"^(K-Market|Alepa|Sale)$"]({{bbox}});
+      );
+    # 474 raw elements, 452 after dedupe; the 22 merged are chains sharing a
+    # shopping centre. 23.6% of the bbox at a 15 minute walk, up from 14.8.
+    expect_count: [320, 600]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    # 30 elements, 30 names, 30 stations — including the five on the 2022
+    # western extension, Finnoo to Kivenlahti.
+    expect_count: [26, 36]
+
+  climbing_gym:
+    # 12 raw elements, 11 after dedupe: Boulderkeskus, KiipeilyAreena and
+    # the rest, and one school wall.
+    expect_count: [5, 20]
+
+  tram:
+    local_name: "Tram & Jokeri"
+    # The Jokeri light rail (line 15, 2023) runs Itäkeskus to Keilaniemi
+    # through ground no tram reaches, and the library query found 5 stops
+    # outside the old tram area where it has 34. Its stops are
+    # `railway=station` + `light_rail=yes`, not `railway=tram_stop`.
+    #
+    # Selected as route members rather than by tag, because the tag also
+    # matches 12 stations no route serves: the Crown Bridges line to
+    # Laajasalo, mapped ahead of opening with no lifecycle tag at all —
+    # Warsaw's proposed metro again, but with nothing in the tags to filter
+    # on. Not in the library: Paris tags its airport shuttles light rail.
+    query: |
+      rel[type=route][route=light_rail]({{bbox}})->.light;
+      (
+        node[railway=tram_stop]({{bbox}});
+        node(r.light:"stop")({{bbox}});
+      );
+    # 398 raw: 364 tram stops and Jokeri's 34, exactly. 194 points after
+    # the 100 m merge, against 181 names.
+    expect_count: [150, 250]
+
+  fitness:
+    # 254 raw elements, 243 after dedupe.
+    expect_count: [160, 340]
+
+  swimming:
+    # 33 raw elements, 31 after dedupe — public uimahalli, by name.
+    expect_count: [18, 45]
+
+  park:
+    # 2376 raw elements, 512 in connected bodies over 10 ha (5 ha if
+    # named), 66.6 km² of ground; 27% of the bbox at a 15 minute walk,
+    # beside Berlin's 25. The Central Parks of Espoo (1147 ha) and Helsinki
+    # (1082) lead. Names barely lower the cut here: Finnish towns name
+    # nearly every green, and 481 of the 512 carry one.
+    expect_count: [380, 650]
+
+  water:
+    # 2014 raw elements, 305 in connected bodies over 5 ha (2 ha if named)
+    # and 205 river strips of 229 lines, 60.9 km² of ground. 47% of the
+    # bbox at a 15 minute walk, without the sea — the lakes of Espoo and
+    # Vantaa.
+    expect_count: [400, 700]
+
+  sea:
+    # 1683 coastline ways, 2026-10-06: 432 open and 1251 closed, of which
+    # 200 ring an island over 1 ha — 632 strips.
+    expect_count: [450, 850]
+
+  library:
+    # Observed 2026-10-27: 103 raw elements, 98 after dedupe.
+    expect_count: [70, 135]
+
+  dog_park:
+    # Observed 2026-10-27: 214 raw elements, 187 after dedupe, nearly all
+    # koira-aitaus.
+    expect_count: [130, 260]

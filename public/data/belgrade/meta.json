@@ -1,0 +1,114 @@
+{
+  "region": "belgrade",
+  "label": "Belgrade",
+  "fetched_at": "2026-11-04T22:34:49.799Z",
+  "osm_as_of": "2026-11-02T21:21:26Z",
+  "bbox": [
+    44.65,
+    20.25,
+    44.95,
+    20.7
+  ],
+  "categories": {
+    "suburban_rail": {
+      "label": "Train",
+      "local_name": "BG Voz",
+      "count": 17,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 8,
+      "osm_as_of": "2026-11-04T21:07:56Z"
+    },
+    "tram": {
+      "label": "Tram stop",
+      "count": 118,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": true,
+      "color_index": 3,
+      "osm_as_of": "2026-11-04T21:08:57Z"
+    },
+    "park": {
+      "label": "Park",
+      "count": 41,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 2,
+      "osm_as_of": "2026-11-04T21:09:56Z"
+    },
+    "water": {
+      "label": "Water",
+      "count": 106,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 0,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "supermarket": {
+      "label": "Supermarket",
+      "count": 375,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 1,
+      "osm_as_of": "2026-11-04T21:10:56Z"
+    },
+    "fitness": {
+      "label": "Gym",
+      "count": 156,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 6,
+      "osm_as_of": "2026-11-02T21:21:26Z"
+    },
+    "swimming": {
+      "label": "Swimming pool",
+      "count": 8,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 5,
+      "osm_as_of": "2026-11-04T21:10:56Z"
+    },
+    "climbing_gym": {
+      "label": "Climbing gym",
+      "count": 8,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 10,
+      "osm_as_of": "2026-11-04T21:11:57Z"
+    },
+    "skatepark": {
+      "label": "Skatepark",
+      "count": 6,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 11,
+      "osm_as_of": "2026-11-04T21:12:57Z"
+    },
+    "library": {
+      "label": "Library",
+      "count": 55,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 4,
+      "osm_as_of": "2026-11-04T21:12:57Z"
+    },
+    "dog_park": {
+      "label": "Dog park",
+      "count": 28,
+      "default_minutes": 15,
+      "default_mode": "walk",
+      "default_enabled": false,
+      "color_index": 12,
+      "osm_as_of": "2026-11-04T21:13:57Z"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+# Munich, roughly the MVV core plus its surroundings.
+#
+# A region is a geographic area plus the set of library categories worth
+# asking about there. Deliberately not saved criteria: time budgets and
+# which categories are ticked live in the app, and a region that also carried
+# "20 minutes by bike" would make "Munich for flat-hunting" and "Munich for a
+# weekend" two different regions.
+#
+# `id` must match the filename. Every key under a category overrides the
+# library's; a category with no library entry must bring its own `query`.
+
+id: munich
+label: "Munich"
+
+# south, west, north, east.
+bbox: [47.95, 11.20, 48.35, 11.85]
+
+# Counts are observed, not guessed, and are checked on every run: a query
+# that has silently swallowed a neighbouring concept still looks entirely
+# plausible on a map. Leave `expect_count` off until a region has actually
+# been fetched once — the run says so rather than quietly passing.
+categories:
+  skatepark:
+    # Observed 2026-10-07: 92 raw elements, 90 after dedupe.
+    expect_count: [50, 150]
+
+  suburban_rail:
+    # Locally this is the S-Bahn, which the panel shows after the label.
+    local_name: "S-Bahn"
+    # Observed 2026-08-17: 230 raw elements, 116 after dedupe.
+    expect_count: [100, 160]
+
+  supermarket:
+    # Observed 2026-08-17: 935 raw elements, 870 after dedupe.
+    expect_count: [600, 1200]
+
+  metro:
+    # The one category ticked on load. A first visit should open on
+    # something, and on one thing: an overlap of two busy categories
+    # is a lot to read before knowing what the tool does, and an empty map
+    # says nothing. Rapid transit is the category every region has an obvious
+    # version of, so it is the one a region ticks — tram where there is no
+    # metro, as in Belgrade.
+    default_enabled: true
+    local_name: "U-Bahn"
+    # Observed 2026-10-08: 100 raw elements, 99 after dedupe, once the
+    # unbuilt Freiham-Zentrum was excluded.
+    expect_count: [80, 120]
+
+  climbing_gym:
+    # Observed 2026-08-18: 15 raw elements, 14 after dedupe.
+    expect_count: [8, 30]
+
+  tram:
+    # 190 points after the 100 m merge, against 179 named stops.
+    expect_count: [140, 260]
+
+  fitness:
+    # 380 raw elements, 366 after dedupe.
+    expect_count: [250, 520]
+
+  swimming:
+    # Observed 2026-10-08: 41 raw elements, 40 after dedupe.
+    expect_count: [20, 65]
+
+  park:
+    # Observed 2026-10-06: 1464 raw elements, 126 in connected bodies over
+    # 10 ha (5 ha if named), covering 26.8 km² and 15% of the region at a
+    # 15 minute walk.
+    expect_count: [85, 180]
+
+  water:
+    # Observed 2026-10-06: 3481 raw elements, 391 in connected bodies over
+    # 5 ha (2 ha if named) and 152 river strips — of 188 lines, the rest
+    # inside water polygons — covering 89.6 km² and 28% of the region at a
+    # 15 minute walk.
+    expect_count: [400, 840]
+
+  library:
+    # Observed 2026-10-27: 162 raw elements, 158 after dedupe.
+    expect_count: [110, 210]
+
+  # No dog_park: Munich lets dogs off the lead by default, and the 19
+  # returned on 2026-10-27 were half dog clubs and schools. The park category
+  # is the better answer for a dog owner here.

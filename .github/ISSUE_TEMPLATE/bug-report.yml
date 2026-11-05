@@ -1,0 +1,31 @@
+name: Report a bug
+description: Something on the map, or in the code, is wrong.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reach is a circle, so a reach crossing a river or a motorway is a known limit rather than a bug; the README's "Limitations" lists the others. A map that looks wrong for a place you know is the most useful kind of report: the data, the queries and the size cuts all fail plausibly.
+  - type: input
+    id: region
+    attributes:
+      label: Region
+      placeholder: Munich
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you did, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: A screenshot helps, with the categories and time budgets you had ticked.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Firefox 140 on Windows 11

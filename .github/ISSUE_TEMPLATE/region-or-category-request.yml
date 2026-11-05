@@ -1,0 +1,62 @@
+name: Request a region or category
+description: Ask for a city, an area or a new kind of place to be added.
+title: "Request: "
+labels: ["New region or category"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A region is a rectangle of OpenStreetMap data and the categories worth asking about there. A category is a kind of place, such as a metro station or a supermarket. Either one is only as good as its query, and a query that returns a plausible number of the wrong things looks entirely right on a map. What makes a request useful is someone who knows the place checking it against the real thing, which is what this form asks for.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What are you requesting?
+      options:
+        - A region
+        - A category
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: City, area or category
+      placeholder: Hamburg
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "## For a region"
+  - type: input
+    id: bbox
+    attributes:
+      label: Bounding box
+      description: South, west, north and east edges in degrees. The Export page on openstreetmap.org shows them for the area on screen. Leave it empty if you would rather describe the area below.
+      placeholder: "53.40, 9.70, 53.75, 10.30"
+  - type: textarea
+    id: area
+    attributes:
+      label: What should it cover?
+      description: The city proper, the commuting belt around it, one part of town.
+  - type: textarea
+    id: rail
+    attributes:
+      label: Suburban rail, metro and tram, as you know them
+      description: The lines, roughly how many stations or stops each has, and a link to an official list if there is one. The counts are checked against this, not against what looks plausible.
+  - type: textarea
+    id: other
+    attributes:
+      label: Anything about the other categories
+      description: Supermarket chains a query might miss, skateparks you know of, anything local that could trip a query up.
+  - type: markdown
+    attributes:
+      value: "## For a category"
+  - type: textarea
+    id: category
+    attributes:
+      label: What it is, and how OpenStreetMap tags it
+      description: The kind of place, the tags you would expect, and which regions you have checked them in.
+  - type: textarea
+    id: distance
+    attributes:
+      label: Why the distance matters
+      description: A category belongs here if people go there weekly or more, and if distance is what limits them. See [Choosing a category](https://github.com/aisus/nearish/blob/main/docs/data.md#choosing-a-category).

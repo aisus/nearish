@@ -1,0 +1,115 @@
+# Amsterdam, with Haarlem, Zaandam, Amstelveen, Almere and the coast.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: amsterdam
+label: "Amsterdam"
+
+# south, west, north, east. 39 by 51 km, Munich's area in a wider box. The
+# west edge is set by the sea: Amsterdam's own waterfront — the IJ and the
+# IJmeer — is lake in OSM since the Afsluitdijk, `natural=water` rather than
+# coastline, so the North Sea is Zandvoort and IJmuiden, 25 km west. Almere
+# in the east, Zaandam in the north, Schiphol and Amstelveen in the south.
+bbox: [52.20, 4.50, 52.55, 5.25]
+
+# Counts observed 2026-10-08 in the output of the 2026-10-07 fetch, names
+# read; that run's raw responses are no longer cached, so raw counts were
+# not recorded except for water.
+categories:
+  skatepark:
+    # 96, no shops among the 27 named — Het Landje, SkatePlaza Almere, the
+    # Kraaiennest DIY.
+    expect_count: [60, 150]
+
+  suburban_rail:
+    local_name: "Sprinter"
+    # No S-numbering: NS trains carry four- and five-digit series refs, so
+    # the library's `^S` returns nothing. The local train here is the NS
+    # Sprinter, which calls at every station, and `service` separates it
+    # cleanly — probed 2026-10-07, the 99 train relations in the bbox are
+    # 30 `regional` (Sprinter), 42 `long_distance` (Intercity), and night
+    # and international services.
+    query: |
+      rel[type=route][route=train][network="Hoofdrailnet Nederland"][service=regional]({{bbox}});
+      node(r:"stop")({{bbox}});
+    # 54 points, 52 stations by name — Diemen and Uitgeest keep two each
+    # across the 250 m merge. Every one a Sprinter stop, Zandvoort aan Zee
+    # to Almere Poort, Castricum to Hillegom.
+    expect_count: [45, 68]
+
+  supermarket:
+    # 610, every one named: Albert Heijn 191, Vomar 57, DekaMarkt 42, Jumbo,
+    # Lidl, ALDI, Dirk, then Turkish, Moroccan, Polish and Surinamese
+    # grocers. One butcher, Slagerij Rief, is tagged as a supermarket.
+    expect_count: [420, 850]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    # 37 points, 35 stations of the network's 39 by name. The four it
+    # shares with NS — Amstel, Duivendrecht, Bijlmer ArenA, Holendrecht —
+    # are main-line station nodes with no `station=subway`, so the metro
+    # reach has a hole at each that only Sprinter covers. Two Wibautstraat
+    # building parts made the count 39 until 2026-10-08.
+    expect_count: [32, 45]
+
+  climbing_gym:
+    # 16, 14 named, all bouldering halls and walls — MONK, Beta Boulders,
+    # Boulderhal de Fabriek — plus Klimpark Twiske, outdoors.
+    expect_count: [8, 30]
+
+  tram:
+    # 245 points against 209 distinct names, 17% over: interchanges such as
+    # Dam and Leidseplein keep a point per platform group, inside the
+    # 6-31% the library's 100 m radius accepts elsewhere.
+    expect_count: [180, 330]
+
+  fitness:
+    # 292: Basic-Fit and SportCity 25 each, TrainMore, then yoga and
+    # Pilates studios, as in every region.
+    expect_count: [200, 410]
+
+  swimming:
+    # 42, the municipal pools and sports centres, one swimming school.
+    expect_count: [25, 60]
+
+  park:
+    # 175, 170 named: the Amsterdamse Bos, the Vondelpark, the
+    # Haarlemmerhout, Almeerderhout.
+    expect_count: [125, 240]
+
+  water:
+    # 40373 `natural=water` features, 37439 with no `water=*` tag — polder
+    # ditches, every one touching the next, so the connected-body cut
+    # passes whole networks on the size of the lake they drain into. 11049
+    # were kept, and computing the reach ran out of a 4 GB heap.
+    #
+    # The floor was a cut against that cost, not a judgment of what is
+    # water: most of what it drops sits beside water already kept. Measured
+    # 2026-10-07 at a 15 minute walk, the time the computed overlap's:
+    #
+    #   piece floor     pieces   coverage   time
+    #   5 ha               580        74%   4.1 s
+    #   2 ha               934        82%   5.5 s
+    #   1 ha              1425        86%   8.0 s
+    #
+    # High coverage is a true fact about the place, as Helsinki's coast is.
+    min_piece_area_m2: 20000
+    # Through the fetch: 805 areas and 55 river strips — 91 of the 146
+    # lines run inside water polygons and are not widened. 83.5% at 15 min,
+    # 96% at 45.
+    expect_count: [700, 1200]
+
+  sea:
+    # 7 coastline ways, Zandvoort to IJmuiden, unnamed as coastline is.
+    expect_count: [4, 15]
+
+  library:
+    # Observed 2026-10-27: 106 raw elements, 106 after dedupe.
+    expect_count: [75, 150]
+
+  dog_park:
+    # Observed 2026-10-27: 125 raw elements, 120 after dedupe, a few of
+    # them dog toilets (Hondentoilet, ~20 m²).
+    expect_count: [85, 170]

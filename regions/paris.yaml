@@ -1,0 +1,123 @@
+# Paris, the city plus the inner and middle rings of the RER.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: paris
+label: "Paris"
+
+# south, west, north, east. Roughly Munich's span (44 by 47 km): Versailles
+# and Saint-Germain-en-Laye in the west, Orly and Roissy-CDG in the south
+# and north. The RER's outer branches run on past it, as Munich's S-Bahn
+# does past its bbox.
+bbox: [48.65, 2.00, 49.05, 2.65]
+
+# Counts observed 2026-10-06, on a first fetch of this region.
+categories:
+  skatepark:
+    # 183 raw elements, 176 after dedupe, observed 2026-10-07 once shops
+    # were excluded. Nearly all `leisure=pitch` + `sport=skateboard`, as in
+    # every region so far.
+    expect_count: [120, 270]
+
+  suburban_rail:
+    local_name: "RER & Transilien"
+    # The library's `^S` selects 2 of the 451 train relations here, both
+    # TER Hauts-de-France. Refs are no use at all: RER lines are A-E and
+    # Transilien lines H-V, while TER Grand Est and Nomad also run K1, C1
+    # and the like. `network` is what separates them, and unlike Munich's
+    # `network=MVV` it is applied consistently — probed 2026-10-06, every
+    # relation carries one: RER 64, Transilien 101. The 3 without are the
+    # CDG Express and a heritage line.
+    #
+    # Transilien is in for the reason WKD is in Warsaw's: it is frequent
+    # commuter rail into the city on the same ticket, and leaving it out
+    # would put holes in the north and west that the ground does not
+    # justify.
+    query: |
+      rel[type=route][route=train][network~"^(RER|Transilien)$"]({{bbox}});
+      node(r:"stop")({{bbox}});
+    # 572 raw stop positions, 250 after the 250 m dedupe, against 262
+    # distinct names that overstate the stations by about 13 — per-track
+    # names like "Gare du Nord – Voie 41". This region is why the library's
+    # radius is 250 m rather than 200.
+    expect_count: [200, 300]
+
+  supermarket:
+    # 1828 raw elements, 1745 after dedupe — more than Berlin's 1572. 57%
+    # of the region at 15 min. The brands are the category's — Monoprix,
+    # Lidl, G20, Aldi, plus organic chains such as Naturalia and Biocoop.
+    expect_count: [1200, 2400]
+
+  metro:
+    # The one category ticked on load; see regions/munich.yaml.
+    default_enabled: true
+    # 418 elements for ~320 stations, and not for Warsaw's reason — nothing
+    # is proposed, and Line 15 is absent rather than mis-tagged. Paris maps
+    # one station node per line at interchanges (République carries 11),
+    # plus 97 stop positions. The library's 50 m merge keeps 355 against
+    # 337 distinct names; there is no clean radius, because genuinely
+    # distinct stations start at 90 m (Mabillon and Saint-Germain-des-Prés)
+    # and 134 m (Rennes and Saint-Placide). Erring narrow, as tram does.
+    #
+    # About 9 are airport people-movers — CDGVAL, Orlyval, the 2E airside
+    # shuttle. Each sits beside an RER B or Line 14 station covering the
+    # same ground, so they inflate the count and not the map.
+    expect_count: [300, 420]
+
+  climbing_gym:
+    # 69 raw elements, 66 after dedupe — about three times Berlin's, and
+    # not all gyms. Around 15 are walls in schools and municipal
+    # gymnasiums (Gymnase de Choisy, collège Rosa Luxemburg), reachable
+    # through a club rather than by walking in. Left in: the only filter
+    # that separates them is the name, and the rest — Arkose, Climbing
+    # District, Block'Out, Hardbloc — are what the category means.
+    expect_count: [40, 100]
+
+  tram:
+    # 272 points after the 100 m merge, against 264 named stops — the
+    # tightest fit of any region. T4, T11 and T13 are tram-trains carrying
+    # `network=Transilien` and are rightly here rather than under rail.
+    expect_count: [200, 350]
+
+  fitness:
+    # 778 raw elements, 744 after dedupe — the densest of any region.
+    expect_count: [500, 1000]
+
+  swimming:
+    # 258 raw elements, 247 after dedupe — three times Berlin's, and real:
+    # French towns run their own piscines and centres aquatiques, Paris
+    # alone about 40, and the names read as exactly that.
+    expect_count: [150, 320]
+
+  park:
+    # Observed 2026-10-06: 4141 raw elements, 292 in connected bodies over
+    # 10 ha (5 ha if named), 106.3 km² of ground — four times Munich's, and
+    # true of the place: the Bois de Vincennes (973 ha) and de Boulogne
+    # (807), Versailles, Saint-Cloud and the regional îles de loisirs.
+    # The figure overstates it twice over, though. It sums rather than
+    # unions, so Versailles counts three times (park, gardens, Trianon), and
+    # the Bois de Vincennes arrives twice: way 142107768 carries
+    # `leisure=park` itself and is also the outer ring of relation 18047835.
+    # Same ground either way, so the reach is right and the count is one
+    # high.
+    #
+    # 40% of the region at a 15 minute walk, against Berlin's 25 — above
+    # the band, and still discriminating: what fails it is the outer ring,
+    # genuinely.
+    expect_count: [200, 420]
+
+  water:
+    # 5101 raw elements, 336 in connected bodies over 5 ha (2 ha if named)
+    # and 159 river strips of 339 lines, 45.4 km² of ground — half of
+    # Munich's or Berlin's, since the Seine and the Marne are narrow and
+    # canalised.
+    expect_count: [450, 950]
+
+  library:
+    # Observed 2026-10-27: 611 raw elements, 591 after dedupe.
+    expect_count: [415, 825]
+
+  dog_park:
+    # Observed 2026-10-27: 176 raw elements, 171 after dedupe.
+    expect_count: [120, 240]
