@@ -1,0 +1,123 @@
+# Zurich, with Winterthur, Baden and both shores of the lake.
+#
+# See regions/munich.yaml for what belongs in a region file and what
+# belongs in the library.
+
+id: zurich
+label: "Zurich"
+
+# south, west, north, east. 41 by 44 km, close to Munich's span: Baden in the
+# west, Winterthur in the north-east, Rapperswil at the far end of the lake
+# and Baar in the south, stopping short of the Rhine. The S-Bahn runs on past
+# it, as Munich's does.
+bbox: [47.19, 8.27, 47.56, 8.86]
+
+# Counts observed 2026-11-06, on a first fetch of this region.
+
+categories:
+  skatepark:
+    # 60 raw elements, 59 after dedupe. `leisure=skatepark` returns zero
+    # here too. One is a pumptrack, in Fehraltorf.
+    expect_count: [35, 90]
+
+  suburban_rail:
+    local_name: "S-Bahn"
+    # The library's query, unchanged: 131 route relations for 34 S-numbered
+    # lines, four of them the Forchbahn's S18 as `route=light_rail`.
+    #
+    # 398 raw stop positions and 200 names, 171 of them ZVV and 29 on the
+    # A-Welle, Zug and Ostwind lines at the edges. 195 points after the
+    # 250 m merge, which folds only Hauptbahnhof's three names and the
+    # second names of Stadelhofen, Bremgarten and Dietikon. The ZVV's
+    # published 171 stations cover a network running past this bbox, so
+    # the two 171s are not one list. No station is missing: the only
+    # `railway=station|halt` nodes with no point within 400 m are funiculars,
+    # the Dolderbahn and the Bäretswil heritage line.
+    expect_count: [170, 220]
+
+  supermarket:
+    # 813 raw elements, 742 after dedupe: Coop 184, Denner 133, Migros 131,
+    # Volg 101. 40% of the bbox at a 15 minute walk, against Munich's 29,
+    # because the villages between the towns each have a shop.
+    #
+    # The library query stands. `shop=convenience` adds 581, mostly the fuel
+    # and station shops of Migrolino, Coop Pronto and avec. 68 of them carry
+    # a grocer's brand (Spar, Volg, Coop, Denner, Migros) and are left out.
+    expect_count: [520, 970]
+
+  climbing_gym:
+    # 14 raw elements, 14 after dedupe. All gyms, by name.
+    expect_count: [8, 25]
+
+  tram:
+    # The one category ticked on load, as in Belgrade: `station=subway`
+    # returns nothing here, so this does not list metro.
+    default_enabled: true
+    # 496 raw stop positions, 226 points after the 100 m merge, against 221
+    # names. Reconciled line by line, since no network total was found:
+    # 15 of the 18 lines on German Wikipedia's 2026 table match the names in
+    # OSM's route relation exactly, taking the extended figure for 8 and 9.
+    # Line 20 is one short at 26, and Niderfeld, the one stop on no route
+    # relation, would be its 27th. Lines 10 and 11 are two and one over in
+    # OSM, not traced.
+    expect_count: [190, 270]
+
+  fitness:
+    # 318 raw elements, 297 after dedupe.
+    expect_count: [200, 390]
+
+  swimming:
+    local_name: "Badi"
+    # The library's query found 126 and none of the city's baths on the
+    # water: Oberer Letten, Utoquai, Enge, Mythenquai, Tiefenbrunnen,
+    # Wollishofen, Frauenbad. Swiss mappers tag a lake or river bath
+    # `amenity=public_bath` with no `sports_centre`, which is also how Baden
+    # and Tägi are mapped. Probed 2026-11-06. The eight `water_park` are
+    # municipal pools, and Alpamare. `bath:type` keeps out spas, hammams and
+    # hot springs. `leisure=swimming_area` stays out: 57, mostly unnamed
+    # patches of lake.
+    query: |
+      (
+        nwr[sport~"(^|;)swimming(;|$)"][leisure=sports_centre]({{bbox}});
+        nwr[amenity=public_bath]["bath:type"!~"^(thermal|hammam|hot_spring|ashiyu|foot_bath)$"]({{bbox}});
+        nwr[leisure=water_park]({{bbox}});
+      );
+    # 165 raw elements, 162 after dedupe, 18% of the bbox at a 15 minute
+    # walk, up from 15. A few are school pools (Schulschwimmanlage).
+    expect_count: [115, 210]
+
+  park:
+    # The only region that lowers the cut. Zurich's large green ground is
+    # forest on its hills, which is not `leisure=park`, so 10 ha (5 ha if
+    # named) left 12 parks, 1.7% of the bbox, and dropped Josefwiese,
+    # Bäckeranlage, Lindenhof and Landiwiese. Coverage at a 15 minute walk:
+    #
+    #   10 ha, named 5   12 places   1.7%
+    #    5 ha, named 2   38          4.5%
+    #    3 ha, named 1   92          8.5%   <- here
+    #    1 ha           113         10.8%
+    #
+    # At 3 and 1 ha the names are still parks a resident would name; about
+    # 10 of the 92 are baths, school grounds and community centres. OSM
+    # holds a third of Irchelpark: 10.7 ha of a real 32.
+    min_area_m2: 30000
+    named_min_area_m2: 10000
+    expect_count: [65, 120]
+
+  water:
+    # 3477 raw elements, 116 in connected bodies over 5 ha (2 ha if named)
+    # and 154 river strips of 191 lines, 137.1 km² of ground. 40% of the
+    # bbox at a 15 minute walk, beside Helsinki's 47 and for the same
+    # reason: the Zürichsee, the Greifensee and the Pfäffikersee, with the
+    # Limmat, Sihl, Glatt, Töss and Reuss between them.
+    expect_count: [190, 350]
+
+  library:
+    # 201 raw elements, 191 after dedupe. Nearly every commune has one, and
+    # the PBZ branches, ETH and UZH fill the city: 20% of the bbox at a
+    # 15 minute walk.
+    expect_count: [135, 250]
+
+  # No dog_park: the city expects a lead most of the day and has free-run
+  # zones, but OSM does not hold them. Of 24 returned on 2026-11-06, 15 have
+  # no name, 6 of the 9 named are dog clubs and schools, and 2 are free runs.
