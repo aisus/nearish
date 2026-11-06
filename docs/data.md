@@ -63,7 +63,7 @@ Thirteen categories fill thirteen slots, which is more than hues can cleanly sep
 
 **A refresh can be resumed.** A refused run writes nothing for that region, but every response it received is already in the cache. `--since` reuses a cached response whose `timestamp_osm_base` is at least that new, so the same command run again queries only what is missing.
 
-The [acceptable use guidelines](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html) allow about 10,000 requests and 1 GB a day per user, identified by IP. A refresh of every region is about 110 queries, and the page never queries Overpass at all, because visitors are served committed files. Following the etiquette keeps a re-run free and a mistake cheap.
+The [acceptable use guidelines](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html) allow about 10,000 requests and 1 GB a day per user, identified by IP. A refresh of every region is about 120 queries, and the page never queries Overpass at all, because visitors are served committed files. Following the etiquette keeps a re-run free and a mistake cheap.
 
 **The cache answers only the query that produced it.** Each raw response is kept in `cache/<region>/` beside the exact query it answered, including the wrapper and bbox. Without `--refresh`, a category whose cache is missing or was made by another query fails instead of fetching. A cache keyed by name alone once answered a changed skatepark query with the old query's skate shops, and a fresh clone would have queried Overpass for every category of every region without being asked.
 
@@ -79,7 +79,7 @@ The [acceptable use guidelines](https://dev.overpass-api.de/overpass-doc/en/pref
 
 **Read the names.** A count range cannot catch a related concept that is included at a steady rate. Skate shops carry `sport=skateboard` too, and they stayed inside every region's range for six regions, until Milan's names were read: 8 of 59.
 
-**A query that works in one region may not work in another.** The suburban-rail selection returned 26 route relations in Munich under `route=train` and *zero* in Berlin, which tags the same system `route=light_rail`. The library asks for both. That failure was total, which made it easy to spot. Three regions of nine use the library's suburban-rail query as it is. The others select by network, service or station in their own file, each with its reason beside it.
+**A query that works in one region may not work in another.** The suburban-rail selection returned 26 route relations in Munich under `route=train` and *zero* in Berlin, which tags the same system `route=light_rail`. The library asks for both. That failure was total, which made it easy to spot. Four regions of ten use the library's suburban-rail query as it is. The others select by network, service or station in their own file, each with its reason beside it.
 
 **Prefer a proxy that mappers actually apply over a tag that is merely correct.** `service=commuter` should separate city rail from regional rail, but across Warsaw's 115 train relations it misses every WKD relation and two SKM ones, and catches four regional operators' relations. The S-numbering convention has no such gaps in three countries, and `expect_count` checks the result.
 
@@ -122,6 +122,8 @@ A relation whose rings will not close falls back to the centre of its `bounds`. 
 **The cut judges a body, not a piece.** OSM cuts a river into polygons at bridges and boundaries (the Isar arrives as 89), and judging the pieces separately draws it as a dashed line. Ways that OSM split share their join nodes exactly, so pieces sharing a vertex are one body, and its area is the sum of theirs. In Munich's water, 103 pieces pass on their own and 342 as bodies. For parks it adds pieces next to parks that already pass, and coverage barely moves.
 
 **A name lowers the cut, because a name is what makes ground a place.** `named_min_area_m2` lets through a body with a name on any piece at 2 ha for water and 5 ha for park. Drawn over the basemap, the named bodies in those bands are Teufelssee, the Grunewald lakes, Tašmajdan and Bavariapark. The unnamed ones are fish-farm ponds, retention basins and estate greens. Below those sizes names stop helping, because squares and moats are named too. With names, park covers 15% of Munich and 25% of Berlin.
+
+**Only Zurich lowers the park cut**, to 3 ha, or 1 ha with a name. Its large green ground is forest on its hills, which is not `leisure=park`, so the library's cut left 12 parks and 1.7% of the region, and dropped Josefwiese, Bäckeranlage and Lindenhof. At the lower cut it has 92 and 8.5%, and the names are still parks. A cut is measured against what a region's parks are, so a park count does not compare between regions.
 
 **Water filters on size alone.** 1755 of Munich's 3271 water pieces have no `water=*` tag, so any inclusive filter drops more than half of them. An exclusive filter does no better: `water=basin` covers the Ismaninger Teichgebiet, open water tagged as retention.
 
